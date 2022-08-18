@@ -1,0 +1,11 @@
+
+-Add environment
+plant
+mound of dirt
+
+Scrolling Background clouds
+Styling for the buttons
+styling for side-window
+Animation for side window
+Logic for raycast
+Transitions from one state to another
