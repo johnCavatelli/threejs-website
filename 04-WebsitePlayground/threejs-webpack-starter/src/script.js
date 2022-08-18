@@ -4,6 +4,7 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import {GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader'
 import * as dat from 'dat.gui'
 import gsap from 'gsap'
+import { StencilOp } from 'three'
 
 //Variables
 const states = { 
@@ -15,8 +16,8 @@ diggingHole: "diggingHole",
 plantingSeed: "plantingSeed",
 wateringPlant: "wateringPlant"
 }
-var mouse, raycaster, currentState
-
+var mouse, raycaster, currentState, currentHover;
+var models = {};
 //loading screen manager
 const loadingManager = new THREE.LoadingManager();
 loadingManager.onStart = function(url,item,total){
@@ -59,42 +60,39 @@ const tableURL = new URL('../models/Table.glb', import.meta.url);
 // Primitive Geometry
 const geometry = new THREE.TorusGeometry(2, .2, 16, 100 );
 const sphereGeometry = new THREE.SphereBufferGeometry(.5, 32, 32);
+const packetGeometry = new THREE.BoxGeometry(0.45,0.3,0.65);
 
 // Materials
 scene.background = new THREE.Color(0x85dde6)
 scene.fog = new THREE.Fog( 0xa0a0a0, 10, 50 );
-const material = new THREE.MeshToonMaterial()
-material.color = new THREE.Color(0x7f1245)
-const material2 = new THREE.MeshToonMaterial()
-const material3 = new THREE.MeshStandardMaterial()
-material2.color = new THREE.Color(0xabcdef)
-material3.color = new THREE.Color(0xafafaf)
 
+const def_mat = new THREE.MeshStandardMaterial()
 const table_mat = new THREE.MeshStandardMaterial()
 const box_mat = new THREE.MeshStandardMaterial()
 const cloud_mat = new THREE.MeshStandardMaterial()
 const dirt_mat = new THREE.MeshStandardMaterial()
+const packet_mat = new THREE.MeshToonMaterial()
 table_mat.color = new THREE.Color(0x876031)
 box_mat.color = new THREE.Color(0xb58b4c)
 cloud_mat.color = new THREE.Color(0xd1eaeb)
 dirt_mat.color = new THREE.Color(0x422e1c)
+def_mat.color = new THREE.Color(0xaf00af)
 
 // Create Meshes
-CreateMesh(canURL, [material, material3, material, material, material], [3.2,-0.1,0.6], [0,0,0], 0.2)
-CreateMesh(packetURL, [material2], [4,0.5,-0.4], [0,1.3,0], 0.2)
+const b1 = new THREE.Mesh(packetGeometry, def_mat)
+b1.position.set(4,0.5,-0.4);
+b1.rotation.set(0,-0.2,0);
+b1.name = "box"
+scene.add(b1);
+
+CreateMesh(canURL, [cloud_mat, cloud_mat, cloud_mat, cloud_mat, cloud_mat], [3.2,-0.1,0.6], [0,0,0], 0.2)
+CreateMesh(packetURL, [packet_mat], [4,0.5,-0.4], [0,1.3,0], 0.2, b1.id)
 CreateMesh(cloudURL, [cloud_mat], [2,-2,0], [0,0,0.1], 0.1)
 CreateMesh(cloudURL, [cloud_mat], [-5,20,-20], [0,0,0], 0.2)
 CreateMesh(cloudURL, [cloud_mat], [15,-2,-80], [0,0,0], 0.3)
 CreateMesh(cloudURL, [cloud_mat], [2,-20,-50], [0,0,0], 0.2)
 CreateMesh(tableURL, [table_mat], [4.4,-0.3,0], [0,1.27,0], 0.07)
 CreateMesh(boxURL, [box_mat, dirt_mat], [1.9,0.2,0], [0,1.57,0], 0.08)
-
-const torus = new THREE.Mesh(geometry,material)
-torus.castShadow = true;
-const sphere = new THREE.Mesh(sphereGeometry,material)
-sphere.receiveShadow = true;
-scene.add(torus)
-scene.add(sphere)
 
 // Lights
 const dirLight = new THREE.DirectionalLight( 0xffffff);
@@ -112,7 +110,7 @@ const hemiLight = new THREE.HemisphereLight( 0xeef0c0, 0x444444, 1.2 );
 hemiLight.position.set( 0, 20, 0 );
 scene.add( hemiLight );
 
-scene.add( new THREE.CameraHelper( dirLight.shadow.camera ) );
+//scene.add( new THREE.CameraHelper( dirLight.shadow.camera ) );
 
 
 //sizes
@@ -136,14 +134,10 @@ window.addEventListener('resize', () =>
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
 })
 
-/**
- * Camera
- */
+
 // Base camera
 const camera = new THREE.PerspectiveCamera(75, sizes.width / sizes.height, 0.1, 100)
 scene.add(camera)
-
-
 
 /**
  * Renderer
@@ -157,6 +151,9 @@ renderer.shadowMap.enabled = true
 
 
 // Controls
+mouse = new THREE.Vector2
+raycaster = new THREE.Raycaster();
+window.addEventListener( 'pointermove', onMouseMove );
 const controls = new OrbitControls(camera, renderer.domElement)
 controls.panSpeed = 2
 controls.enableDamping = true
@@ -165,21 +162,52 @@ controls.enableDamping = true
 /**
  * Main Loop
  */
- ChangeState(states["intro"]);
+ChangeState(states["intro"]);
 const clock = new THREE.Clock()
 
 const tick = () =>
-{
-
+{    
     const elapsedTime = clock.getElapsedTime()
-
-    // Update objects
-    torus.rotation.y = .5 * elapsedTime
-
     // controls.update();
 
-     // Render
-     renderer.render(scene, camera);
+    switch(currentState) {
+        case states["intro"]:
+            break;
+        case states["lookSeeds"]:   
+            raycaster.setFromCamera( mouse, camera ); // update the picking ray with the camera and pointer position
+            const intersects = raycaster.intersectObjects( scene.children );// calculate objects intersecting the picking ray
+            var newHover;
+            for ( let i = 0; i < intersects.length; i ++ ) {
+                if(intersects[i].object.name == "box"){
+                    // console.log(models)
+                    // console.log(intersects[i].object.id);
+                    gsap.to(models[intersects[i].object.id].position, {
+                        y: 0.7,
+                        duration: 0.5,
+                        ease: "power4.out"         
+                    })
+                    newHover = intersects[i].object.id;
+                    break;
+                }                
+            }
+            if(newHover != currentHover){
+                if(currentHover != null){
+                gsap.to(models[currentHover].position, {
+                    y: 0.5,
+                    duration: 0.5,
+                    ease: "power4.out"         
+                })}
+                currentHover = newHover;
+            }
+
+            break;
+        case states["lookGarden"]:
+          break;
+        default:
+          // code block
+      }
+    // Render
+    renderer.render(scene, camera);
 
     // Call tick again on the next frame
     window.requestAnimationFrame(tick)
@@ -188,18 +216,25 @@ const tick = () =>
 tick()
 
 //functions
+function onMouseMove( event){
+    mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+	mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;  
+}
+
 function ChangeState(newState){
     switch(newState) {
         case states["intro"]:
-          ChangeCameraValues(6,4,8,-0.3,0.3,0,0);
-          ChangeHTMLStates({text_welcome: "",button_start: "",text_loading:"none", start_button:"none", button_garden:"none", button_seeds:"none", button_back:"none"});
-          break;
+            currentState = states["intro"];
+            ChangeCameraValues(6,4,8,-0.3,0.3,0,0);
+            ChangeHTMLStates({text_welcome: "",button_start: "",text_loading:"none", start_button:"none", button_garden:"none", button_seeds:"none", button_back:"none"});
+            break;
         case states["lookSeeds"]:
+            currentState = states["lookSeeds"];
             ChangeCameraValues(4.3,2,0,-1.5,0,0,2);
             ChangeHTMLStates({text_welcome: "none",button_start: "none",text_loading:"none", button_back:"none", button_garden: "", button_seeds: "none"});
           break;
-          break;
         case states["lookGarden"]:
+            currentState = states["lookGarden"];
             ChangeCameraValues(2,2.3,1.6,-0.8,0,0,2);
             ChangeHTMLStates({back_button: "none", button_garden:"none", button_seeds:""});
           break;
@@ -234,9 +269,9 @@ function ChangeHTMLStates({text_loading, text_welcome, button_start, button_gard
     back_button.style.display = button_back;
 }
 
-function CreateMesh(url, materials, position, rotation, scale){
+function CreateMesh(url, materials, position, rotation, scale, colliderId){
     var materialIndex = 0;
-    gltfLoader.load(url.href, function(gltf){
+    gltfLoader.load(url.href,function(gltf){
         const model = gltf.scene;
         model.traverse((o) => {            
             if (o.isMesh){
@@ -244,7 +279,7 @@ function CreateMesh(url, materials, position, rotation, scale){
                 o.receiveShadow = true; 
                 if(materials != null){
                 const texture = o.material.map;
-                console.log(texture);
+                // console.log(texture);
                 o.material = materials[materialIndex];
                 o.material.map = texture;
                 materialIndex++;
@@ -254,9 +289,8 @@ function CreateMesh(url, materials, position, rotation, scale){
         model.rotation.set(rotation[0], rotation[1], rotation[2]);
         model.scale.set(scale,scale,scale);        
         model.position.set(position[0], position[1], position[2]);
-        
-        // model.castShadow = true;
-        // model.receiveShadow = true;
+                
+        //console.log(model);
         scene.add(model);        
         // gui.add(model.position, 'x')
         // gui.add(model.position, 'y')
@@ -264,9 +298,14 @@ function CreateMesh(url, materials, position, rotation, scale){
         // gui.add(model.rotation, 'x')
         // gui.add(model.rotation, 'y')
         // gui.add(model.rotation, 'z')
-
-
+        SetModel(model, colliderId)
+        
     }, undefined, function(error){
         console.log(error);
     })
+}
+
+function SetModel(mode, colliderId){
+    console.log(colliderId);
+    models[colliderId] = mode;
 }
