@@ -20,6 +20,7 @@ var mouse, raycaster, currentState, currentHover, selectedSeedHitboxID, newPlant
 var models = {};
 var hitboxes = {};
 var seedToPlants = {};
+var plantIdToHitbox = {};
 const shovelId = -10;
 const canId = -20;
 const plant1Id = -30;
@@ -112,17 +113,22 @@ const plant2_hitbox = new THREE.Mesh(plantHitboxGeometry, def_mat);
 plant1_hitbox.position.set(0,-2,0);
 plant2_hitbox.position.set(0,-2,0);
 plant1_hitbox.name = "plant";
-plant1_hitbox.name = "plant";
+plant2_hitbox.name = "plant";
 const hitIndicator = new THREE.Mesh(sphereGeometry, def_mat)
 hitIndicator.position.set(0,-4,0);
 
 scene.add(b1);
 scene.add(b2);
 scene.add(dirt_box);
-scene.add(hitIndicator)
+scene.add(hitIndicator);
+scene.add(plant1_hitbox);
+scene.add(plant2_hitbox);
 
-seedToPlants[b1.id] = plant1Id;
-seedToPlants[b2.id] = plant2Id;
+seedToPlants[b1.id] = plant1_hitbox.id;
+seedToPlants[b2.id] = plant2_hitbox.id;
+plantIdToHitbox[plant1Id] = plant1_hitbox;
+plantIdToHitbox[plant2Id] = plant2_hitbox;
+
 
 CreateMesh(canURL, [cloud_mat, cloud_mat, cloud_mat, cloud_mat, cloud_mat], [3.2,-0.1,0.6], [0,0,0], 0.2, canId)
 CreateMesh(shovelURL, [box_mat, dirt_mat], [4,0,1], [0,1.7,0], 0.2, shovelId)
@@ -134,8 +140,8 @@ CreateMesh(cloudURL, [cloud_mat], [15,-2,-80], [0,0,0], 0.3)
 CreateMesh(cloudURL, [cloud_mat], [2,-20,-50], [0,0,0], 0.2)
 CreateMesh(tableURL, [table_mat], [4.4,-0.3,0], [0,1.27,0], 0.07)
 CreateMesh(boxURL, [box_mat, dirt_mat], [1.9,0.2,0], [0,1.57,0], 0.08)
-CreateMesh(plantURL, [flower_mat], [1,-1.3,0], [0,0,0], 0.6, plant1Id)
-CreateMesh(plantURL, [flower_mat], [1,-1.3,1], [0,0,0], 0.6, plant2Id)
+CreateMesh(plantURL, [flower_mat], [1,-1.3,0], [0,0,0], 0.6, plant1_hitbox.id)
+CreateMesh(plantURL, [flower_mat], [1,-1.3,1], [0,0,0], 0.6, plant2_hitbox.id)
 
 // Lights
 const dirLight = new THREE.DirectionalLight( 0xffffff);
@@ -245,6 +251,31 @@ const tick = () =>
                 currentHover = newHover;
             }
             break;
+        case states["lookSeeds"]:   
+            raycaster.setFromCamera( mouse, camera ); // update the picking ray with the camera and pointer position
+            const pIntersects = raycaster.intersectObjects( scene.children );// calculate objects intersecting the picking ray
+            var newHover;
+            for ( let i = 0; i < pIntersects.length; i ++ ) {
+                if(pIntersects[i].object.name == "plant"){
+                    gsap.to(plantIdToHitbox.position, {
+                        y: 0.7,
+                        duration: 0.5,
+                        ease: "power4.out"         
+                    })
+                    newHover = pIntersects[i].object.id;
+                    break;
+                }                
+            }
+            if(newHover != currentHover){
+                if(currentHover != null){
+                gsap.to(models[currentHover].position, {
+                    y: 0.5,
+                    duration: 0.5,
+                    ease: "power4.out"         
+                })}
+                currentHover = newHover;
+            }
+            break;            
         case states["diggingHole"]:
             raycaster.setFromCamera( mouse, camera ); // update the picking ray with the camera and pointer position
             const dirtIntersect = raycaster.intersectObjects( scene.children );// calculate objects intersecting the picking ray
@@ -323,6 +354,7 @@ function onClick(event){
                 hitIndicator.position.set(0,-1,0);     
                 models[seedToPlants[selectedSeedHitboxID]].position.set(newPlantPoint.x,0,newPlantPoint.z);
                 hitboxes[selectedSeedHitboxID].position.set(-10,-10,0);
+                plantIdToHitbox[seedToPlants[selectedSeedHitboxID]].position.set(newPlantPoint.x, 0.8, newPlantPoint.z);
                 gsap.to(models[seedToPlants[selectedSeedHitboxID]].position, {
                     y: 0.9,
                     delay: 1,
