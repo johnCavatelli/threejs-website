@@ -69,13 +69,14 @@ const moundGeometry = new THREE.TorusGeometry(0.05, .02, 16, 10 );
 const sphereGeometry = new THREE.SphereBufferGeometry(.05, 12, 12);
 const packetGeometry = new THREE.BoxGeometry(0.45,0.3,0.65);
 const dirtGeometry = new THREE.BoxGeometry(1.1,0.1,1.4);
+const plantHitboxGeometry = new THREE.BoxGeometry(0.3,0.6,0.3);
 
 // Materials
 scene.background = new THREE.Color(0x85dde6)
 scene.fog = new THREE.Fog( 0xa0a0a0, 10, 50 );
 
 
-const clear_mat = new THREE.MeshStandardMaterial({opacity:0.1, transparent:true})
+const clear_mat = new THREE.MeshStandardMaterial({opacity:0, transparent:true})
 const def_mat = new THREE.MeshStandardMaterial()
 const table_mat = new THREE.MeshStandardMaterial()
 const box_mat = new THREE.MeshStandardMaterial()
@@ -95,17 +96,23 @@ b1.position.set(4,0.5,-0.4);
 b1.rotation.set(0,-0.2,0);
 b1.name = "box"
 hitboxes[b1.id] = b1;
-const b2 = new THREE.Mesh(packetGeometry, def_mat)
+const b2 = new THREE.Mesh(packetGeometry, clear_mat)
 b2.position.set(4.5,0.5,-0.23);
 b2.rotation.set(0,-0.2,0);
 b2.name = "box"
 hitboxes[b2.id] = b2;
-
 const dirt_box = new THREE.Mesh(dirtGeometry, clear_mat)
 dirt_box.position.set(1.9,0.8,0);
 dirt_box.rotation.set(0,1.57,0);
 dirt_box.name = "dirt"
 
+
+const plant1_hitbox = new THREE.Mesh(plantHitboxGeometry, def_mat);
+const plant2_hitbox = new THREE.Mesh(plantHitboxGeometry, def_mat);
+plant1_hitbox.position.set(0,-2,0);
+plant2_hitbox.position.set(0,-2,0);
+plant1_hitbox.name = "plant";
+plant1_hitbox.name = "plant";
 const hitIndicator = new THREE.Mesh(sphereGeometry, def_mat)
 hitIndicator.position.set(0,-4,0);
 
@@ -118,7 +125,7 @@ seedToPlants[b1.id] = plant1Id;
 seedToPlants[b2.id] = plant2Id;
 
 CreateMesh(canURL, [cloud_mat, cloud_mat, cloud_mat, cloud_mat, cloud_mat], [3.2,-0.1,0.6], [0,0,0], 0.2, canId)
-CreateMesh(shovelURL, [box_mat, box_mat], [4,0,1], [0,1.7,0], 0.2, shovelId)
+CreateMesh(shovelURL, [box_mat, dirt_mat], [4,0,1], [0,1.7,0], 0.2, shovelId)
 CreateMesh(packetURL, [packet_mat], [4,0.5,-0.4], [0,1.3,0], 0.2, b1.id)
 CreateMesh(packetURL, [packet_mat], [4.5,0.5,-0.23], [0,1.3,0], 0.2, b2.id)
 CreateMesh(cloudURL, [cloud_mat], [2,-2,0], [0,0,0.1], 0.1)
@@ -127,8 +134,8 @@ CreateMesh(cloudURL, [cloud_mat], [15,-2,-80], [0,0,0], 0.3)
 CreateMesh(cloudURL, [cloud_mat], [2,-20,-50], [0,0,0], 0.2)
 CreateMesh(tableURL, [table_mat], [4.4,-0.3,0], [0,1.27,0], 0.07)
 CreateMesh(boxURL, [box_mat, dirt_mat], [1.9,0.2,0], [0,1.57,0], 0.08)
-CreateMesh(plantURL, [flower_mat], [1,1.3,0], [0,0,0], 0.6, plant1Id)
-CreateMesh(plantURL, [flower_mat], [1,1.3,1], [0,0,0], 0.6, plant2Id)
+CreateMesh(plantURL, [flower_mat], [1,-1.3,0], [0,0,0], 0.6, plant1Id)
+CreateMesh(plantURL, [flower_mat], [1,-1.3,1], [0,0,0], 0.6, plant2Id)
 
 // Lights
 const dirLight = new THREE.DirectionalLight( 0xffffff);
