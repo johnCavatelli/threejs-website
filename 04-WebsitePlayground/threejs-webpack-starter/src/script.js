@@ -16,16 +16,14 @@ diggingHole: "diggingHole",
 plantingSeed: "plantingSeed",
 wateringPlant: "wateringPlant"
 }
-var mouse, raycaster, currentState, currentHover, selectedSeedHitboxID, newPlantPoint;
+var mouse, raycaster, currentState, currentHover, selectedSeedHitboxID, newPlantPoint, selectedPlantId;
 var models = {};
 var hitboxes = {};
 var seedToPlants = {};
-var plantIdToHitbox = {};
+var plantHitboxToArticle = {};
 const shovelId = -10;
 const canId = -20;
-const plant1Id = -30;
-const plant2Id = -31;
-const plant3Id = -32;
+
 
 //loading screen manager
 const loadingManager = new THREE.LoadingManager();
@@ -44,11 +42,13 @@ const start_button = document.getElementById("start")
 const seeds_button = document.getElementById("seeds")
 const garden_button = document.getElementById("garden")
 const back_button = document.getElementById("back")
+const article_text = document.getElementById("article")
 
 //HTML Listeners
 start_button.addEventListener("click", function(){ChangeState(states["lookSeeds"])});
 garden_button.addEventListener("click", function(){ChangeState(states["lookGarden"])});
 seeds_button.addEventListener("click", function(){ChangeState(states["lookSeeds"])});
+back_button.addEventListener("click", function(){ChangeState(states["lookGarden"])});
 
 //ThreeJS Setup
 const gui = new dat.GUI() // Debug
@@ -70,7 +70,7 @@ const moundGeometry = new THREE.TorusGeometry(0.05, .02, 16, 10 );
 const sphereGeometry = new THREE.SphereBufferGeometry(.05, 12, 12);
 const packetGeometry = new THREE.BoxGeometry(0.45,0.3,0.65);
 const dirtGeometry = new THREE.BoxGeometry(1.1,0.1,1.4);
-const plantHitboxGeometry = new THREE.BoxGeometry(0.3,0.6,0.3);
+const plantHitboxGeometry = new THREE.BoxGeometry(0.15,0.6,0.15);
 
 // Materials
 scene.background = new THREE.Color(0x85dde6)
@@ -114,6 +114,8 @@ plant1_hitbox.position.set(0,-2,0);
 plant2_hitbox.position.set(0,-2,0);
 plant1_hitbox.name = "plant";
 plant2_hitbox.name = "plant";
+hitboxes[plant1_hitbox.id] = plant1_hitbox;
+hitboxes[plant2_hitbox.id] = plant2_hitbox;
 const hitIndicator = new THREE.Mesh(sphereGeometry, def_mat)
 hitIndicator.position.set(0,-4,0);
 
@@ -126,8 +128,6 @@ scene.add(plant2_hitbox);
 
 seedToPlants[b1.id] = plant1_hitbox.id;
 seedToPlants[b2.id] = plant2_hitbox.id;
-plantIdToHitbox[plant1Id] = plant1_hitbox;
-plantIdToHitbox[plant2Id] = plant2_hitbox;
 
 
 CreateMesh(canURL, [cloud_mat, cloud_mat, cloud_mat, cloud_mat, cloud_mat], [3.2,-0.1,0.6], [0,0,0], 0.2, canId)
@@ -209,6 +209,10 @@ const controls = new OrbitControls(camera, renderer.domElement)
 controls.panSpeed = 2
 controls.enableDamping = true
 
+//HTML articles in dictionary so that when the plant is clicked on it's brought up
+plantHitboxToArticle[plant1_hitbox.id] = "<button>HELLO</button>"
+plantHitboxToArticle[plant2_hitbox.id] = "<p>WHERe's the beef</p>"
+
 
 /**
  * Main Loop
@@ -251,14 +255,14 @@ const tick = () =>
                 currentHover = newHover;
             }
             break;
-        case states["lookSeeds"]:   
+        case states["lookGarden"]:   
             raycaster.setFromCamera( mouse, camera ); // update the picking ray with the camera and pointer position
             const pIntersects = raycaster.intersectObjects( scene.children );// calculate objects intersecting the picking ray
             var newHover;
             for ( let i = 0; i < pIntersects.length; i ++ ) {
                 if(pIntersects[i].object.name == "plant"){
-                    gsap.to(plantIdToHitbox.position, {
-                        y: 0.7,
+                    gsap.to(models[pIntersects[i].object.id].rotation, {
+                        y: 0.85,
                         duration: 0.5,
                         ease: "power4.out"         
                     })
@@ -268,8 +272,8 @@ const tick = () =>
             }
             if(newHover != currentHover){
                 if(currentHover != null){
-                gsap.to(models[currentHover].position, {
-                    y: 0.5,
+                gsap.to(models[currentHover].rotation, {
+                    y: 0,
                     duration: 0.5,
                     ease: "power4.out"         
                 })}
@@ -339,6 +343,14 @@ function onClick(event){
                 ChangeState(states["diggingHole"])
             }
           break;
+        case states["lookGarden"]:
+            if(currentHover != null){
+                console.log("Clicked on: " + currentHover);
+                selectedPlantId = currentHover;
+                currentHover = null;
+                ChangeState(states["lookPage"]);
+            }
+          break;          
         case states["diggingHole"]:
             if(newPlantPoint != null){
                 ChangeState(states["plantingSeed"]);
@@ -352,9 +364,9 @@ function onClick(event){
         case states["wateringPlant"]:
             if(newPlantPoint.distanceTo(hitIndicator.position) < 0.1){
                 hitIndicator.position.set(0,-1,0);     
-                models[seedToPlants[selectedSeedHitboxID]].position.set(newPlantPoint.x,0,newPlantPoint.z);
-                hitboxes[selectedSeedHitboxID].position.set(-10,-10,0);
-                plantIdToHitbox[seedToPlants[selectedSeedHitboxID]].position.set(newPlantPoint.x, 0.8, newPlantPoint.z);
+                models[seedToPlants[selectedSeedHitboxID]].position.set(newPlantPoint.x,0,newPlantPoint.z);//move flowers below soil
+                hitboxes[selectedSeedHitboxID].position.set(-100,0,0);
+                hitboxes[seedToPlants[selectedSeedHitboxID]].position.set(newPlantPoint.x, 0.8, newPlantPoint.z);//plant hitbox
                 gsap.to(models[seedToPlants[selectedSeedHitboxID]].position, {
                     y: 0.9,
                     delay: 1,
@@ -415,7 +427,7 @@ function ChangeState(newState){
         case states["lookGarden"]:
             currentState = states["lookGarden"];
             ChangeCameraValues(2,2.3,1.6,-0.8,0,0,2);
-            ChangeHTMLStates({back_button: "none", button_garden:"none", button_seeds:""});
+            ChangeHTMLStates({text_article:"none", button_back: "none", button_garden:"none", button_seeds:""});
         break;
         case states["diggingHole"]:
             currentState = states["diggingHole"];
@@ -448,7 +460,7 @@ function ChangeState(newState){
                 ease: "power3.out"         
             })            
             ChangeCameraValues(2,2.3,1.6,-0.8,0,0,2);
-            ChangeHTMLStates({back_button: "", button_garden:"none", button_seeds:"none"});
+            ChangeHTMLStates({button_back: "none", button_garden:"none", button_seeds:"none"});
           break;
         case states["plantingSeed"]:
             currentState = states["plantingSeed"];
@@ -535,6 +547,10 @@ function ChangeState(newState){
                 ease: "power2.out"   
             })    
             break;
+        case states["lookPage"]:
+            article_text.innerHTML = plantHitboxToArticle[selectedPlantId];
+            ChangeHTMLStates({button_back: "", button_garden:"none", button_seeds:"none",text_article:""})
+            break;
         default:
           // code block
       }
@@ -557,13 +573,14 @@ function ChangeCameraValues(camX,camY,camZ, camRX,camRY,camRZ, dur){
     })
 }
 
-function ChangeHTMLStates({text_loading, text_welcome, button_start, button_garden, button_seeds, button_back} = {}){
+function ChangeHTMLStates({text_loading, text_welcome, button_start, button_garden, button_seeds, button_back, text_article} = {}){
     loading_text.style.display = text_loading;
     welcome_text.style.display = text_welcome;
     start_button.style.display = button_start;
     garden_button.style.display = button_garden;
     seeds_button.style.display = button_seeds;
     back_button.style.display = button_back;
+    article_text.style.display = text_article
 }
 
 function CreateMesh(url, materials, position, rotation, scale, colliderId){
