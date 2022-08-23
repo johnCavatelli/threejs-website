@@ -43,6 +43,7 @@ const seeds_button = document.getElementById("seeds")
 const garden_button = document.getElementById("garden")
 const back_button = document.getElementById("back")
 const article_text = document.getElementById("article")
+const instructions_text = document.getElementById("instructions")
 
 //HTML Listeners
 start_button.addEventListener("click", function(){ChangeState(states["lookSeeds"])});
@@ -108,8 +109,8 @@ dirt_box.rotation.set(0,1.57,0);
 dirt_box.name = "dirt"
 
 
-const plant1_hitbox = new THREE.Mesh(plantHitboxGeometry, def_mat);
-const plant2_hitbox = new THREE.Mesh(plantHitboxGeometry, def_mat);
+const plant1_hitbox = new THREE.Mesh(plantHitboxGeometry, clear_mat);
+const plant2_hitbox = new THREE.Mesh(plantHitboxGeometry, clear_mat);
 plant1_hitbox.position.set(0,-2,0);
 plant2_hitbox.position.set(0,-2,0);
 plant1_hitbox.name = "plant";
@@ -153,6 +154,8 @@ dirLight.shadow.camera.left = -10;
 dirLight.shadow.camera.right = 10;
 dirLight.shadow.camera.near = 0.1;
 dirLight.shadow.camera.far = 40;
+dirLight.shadow.mapSize.width = 2048;
+dirLight.shadow.mapSize.height = 2048;
 scene.add( dirLight );
 
 const hemiLight = new THREE.HemisphereLight( 0xeef0c0, 0x444444, 1.2 );
@@ -196,7 +199,9 @@ const renderer = new THREE.WebGLRenderer({
 })
 renderer.setSize(sizes.width, sizes.height)
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
-renderer.shadowMap.enabled = true
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.shadowMap.enabled = true;
+
 
 // Mouse
 mouse = new THREE.Vector2
@@ -315,6 +320,8 @@ const tick = () =>
                 }
             }
             break;
+        case states["lookPage"]:
+            break;
         default:
           // code block
       }
@@ -417,17 +424,19 @@ function ChangeState(newState){
         case states["intro"]:
             currentState = states["intro"];
             ChangeCameraValues(6,4,8,-0.3,0.3,0,0);
-            ChangeHTMLStates({text_welcome: "",button_start: "",text_loading:"none", start_button:"none", button_garden:"none", button_seeds:"none", button_back:"none"});
+            ChangeHTMLStates({text_welcome: "",button_start: "",text_loading:"none", start_button:"none", button_garden:"none", button_seeds:"none", button_back:"none", text_article:"none", text_instructions:"none"});
             break;
         case states["lookSeeds"]:
             currentState = states["lookSeeds"];
             ChangeCameraValues(4.3,2,0,-1.5,0,0,2);
-            ChangeHTMLStates({text_welcome: "none",button_start: "none",text_loading:"none", button_back:"none", button_garden: "", button_seeds: "none"});
+            instructions_text.innerHTML = "<p>Choose some seeds to plant</p>"
+            ChangeHTMLStates({text_welcome: "none",button_start: "none",text_loading:"none", button_back:"none", button_garden: "", button_seeds: "none", text_instructions:""});
           break;
         case states["lookGarden"]:
             currentState = states["lookGarden"];
             ChangeCameraValues(2,2.3,1.6,-0.8,0,0,2);
-            ChangeHTMLStates({text_article:"none", button_back: "none", button_garden:"none", button_seeds:""});
+            instructions_text.innerHTML = "<p>Click on a plant</p>"
+            ChangeHTMLStates({text_article:"none", button_back: "none", button_garden:"none", button_seeds:"", text_instructions:"",text_article:"none"});
         break;
         case states["diggingHole"]:
             currentState = states["diggingHole"];
@@ -460,7 +469,8 @@ function ChangeState(newState){
                 ease: "power3.out"         
             })            
             ChangeCameraValues(2,2.3,1.6,-0.8,0,0,2);
-            ChangeHTMLStates({button_back: "none", button_garden:"none", button_seeds:"none"});
+            instructions_text.innerHTML = "<p>Dig a hole</p>"
+            ChangeHTMLStates({button_back: "none", button_garden:"none", button_seeds:"none", text_instructions:""});
           break;
         case states["plantingSeed"]:
             currentState = states["plantingSeed"];
@@ -511,7 +521,8 @@ function ChangeState(newState){
                 duration: 1,
                 delay: 1,
                 ease: "power2.out"         
-            })            
+            })
+            instructions_text.innerHTML = "<p>Plant the seeds in the hole</p>"
             break;
         case states["wateringPlant"]:
             currentState = states["wateringPlant"];
@@ -545,11 +556,13 @@ function ChangeState(newState){
                 delay: 1,
                 duration: 0.5,
                 ease: "power2.out"   
-            })    
+            })
+            instructions_text.innerHTML = "<p>Water the plant</p>"    
             break;
         case states["lookPage"]:
+            currentState = states["lookPage"];
             article_text.innerHTML = plantHitboxToArticle[selectedPlantId];
-            ChangeHTMLStates({button_back: "", button_garden:"none", button_seeds:"none",text_article:""})
+            ChangeHTMLStates({button_back: "", button_garden:"none", button_seeds:"none",text_article:"",text_instructions:"none"})
             break;
         default:
           // code block
@@ -573,14 +586,15 @@ function ChangeCameraValues(camX,camY,camZ, camRX,camRY,camRZ, dur){
     })
 }
 
-function ChangeHTMLStates({text_loading, text_welcome, button_start, button_garden, button_seeds, button_back, text_article} = {}){
+function ChangeHTMLStates({text_loading, text_welcome, button_start, button_garden, button_seeds, button_back, text_article, text_instructions} = {}){
     loading_text.style.display = text_loading;
     welcome_text.style.display = text_welcome;
     start_button.style.display = button_start;
     garden_button.style.display = button_garden;
     seeds_button.style.display = button_seeds;
     back_button.style.display = button_back;
-    article_text.style.display = text_article
+    article_text.style.display = text_article;
+    instructions_text.style.display = text_instructions;
 }
 
 function CreateMesh(url, materials, position, rotation, scale, colliderId){
