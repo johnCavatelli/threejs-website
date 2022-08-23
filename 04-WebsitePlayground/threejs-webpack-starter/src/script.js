@@ -23,6 +23,7 @@ var seedToPlants = {};
 var plantHitboxToArticle = {};
 const shovelId = -10;
 const canId = -20;
+const windmillBladeId = -5;
 
 
 //loading screen manager
@@ -65,16 +66,18 @@ const boxURL = new URL('../models/box.glb', import.meta.url);
 const packetURL = new URL('../models/packet.glb', import.meta.url);
 const tableURL = new URL('../models/Table.glb', import.meta.url);
 const plantURL = new URL('../models/flowers.glb', import.meta.url);
+const windmillBaseURL = new URL('../models/windmillBase.glb', import.meta.url);
+const windmillBladeURL = new URL('../models/windMillBlade.glb', import.meta.url);
 
 // Primitive Geometry
 const moundGeometry = new THREE.TorusGeometry(0.05, .02, 16, 10 );
-const sphereGeometry = new THREE.SphereBufferGeometry(.05, 12, 12);
+const sphereGeometry = new THREE.SphereBufferGeometry(.02, 12, 12);
 const packetGeometry = new THREE.BoxGeometry(0.45,0.3,0.65);
 const dirtGeometry = new THREE.BoxGeometry(1.1,0.1,1.4);
 const plantHitboxGeometry = new THREE.BoxGeometry(0.15,0.6,0.15);
 
 // Materials
-scene.background = new THREE.Color(0x85dde6)
+scene.background = new THREE.Color(0xb3ffe3)
 scene.fog = new THREE.Fog( 0xa0a0a0, 10, 50 );
 
 
@@ -140,6 +143,8 @@ CreateMesh(cloudURL, [cloud_mat], [-5,20,-20], [0,0,0], 0.2)
 CreateMesh(cloudURL, [cloud_mat], [15,-2,-80], [0,0,0], 0.3)
 CreateMesh(cloudURL, [cloud_mat], [2,-20,-50], [0,0,0], 0.2)
 CreateMesh(tableURL, [table_mat], [4.4,-0.3,0], [0,1.27,0], 0.07)
+CreateMesh(windmillBaseURL, [table_mat,table_mat,dirt_mat,dirt_mat], [0,-0,0], [0,-1,0], 0.3)
+CreateMesh(windmillBladeURL, [table_mat], [0,0,0], [0,-1,0], 0.3)
 CreateMesh(boxURL, [box_mat, dirt_mat], [1.9,0.2,0], [0,1.57,0], 0.08)
 CreateMesh(plantURL, [flower_mat], [1,-1.3,0], [0,0,0], 0.6, plant1_hitbox.id)
 CreateMesh(plantURL, [flower_mat], [1,-1.3,1], [0,0,0], 0.6, plant2_hitbox.id)
@@ -201,6 +206,9 @@ renderer.setSize(sizes.width, sizes.height)
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 renderer.shadowMap.enabled = true;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.75;
+
 
 
 // Mouse
@@ -215,8 +223,8 @@ controls.panSpeed = 2
 controls.enableDamping = true
 
 //HTML articles in dictionary so that when the plant is clicked on it's brought up
-plantHitboxToArticle[plant1_hitbox.id] = "<button>HELLO</button>"
-plantHitboxToArticle[plant2_hitbox.id] = "<p>WHERe's the beef</p>"
+plantHitboxToArticle[plant1_hitbox.id] = '<a herf="https://github.com/johnCavatelli">Link to Github</a>'
+plantHitboxToArticle[plant2_hitbox.id] = ''
 
 
 /**
@@ -228,7 +236,7 @@ const clock = new THREE.Clock()
 const tick = () =>
 {    
     const elapsedTime = clock.getElapsedTime()
-    // controls.update();
+    //controls.update();
 
     switch(currentState) {
         case states["intro"]:
