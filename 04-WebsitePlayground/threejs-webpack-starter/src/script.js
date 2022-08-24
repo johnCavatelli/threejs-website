@@ -4,7 +4,7 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import {GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader'
 import * as dat from 'dat.gui'
 import gsap from 'gsap'
-import { StencilOp, Vector3 } from 'three'
+// import { StencilOp, Vector3 } from 'three'
 
 //Variables
 const states = { 
@@ -23,6 +23,7 @@ var seedToPlants = {};
 var plantHitboxToArticle = {};
 const shovelId = -10;
 const canId = -20;
+const windmillBladeId = -5;
 
 
 //loading screen manager
@@ -43,6 +44,7 @@ const seeds_button = document.getElementById("seeds")
 const garden_button = document.getElementById("garden")
 const back_button = document.getElementById("back")
 const article_text = document.getElementById("article")
+const instructions_text = document.getElementById("instructions")
 
 //HTML Listeners
 start_button.addEventListener("click", function(){ChangeState(states["lookSeeds"])});
@@ -51,7 +53,7 @@ seeds_button.addEventListener("click", function(){ChangeState(states["lookSeeds"
 back_button.addEventListener("click", function(){ChangeState(states["lookGarden"])});
 
 //ThreeJS Setup
-const gui = new dat.GUI() // Debug
+// const gui = new dat.GUI() // Debug
 const canvas = document.querySelector('canvas.webgl') // Canvas
 const scene = new THREE.Scene() // Scene
 const gltfLoader = new GLTFLoader(loadingManager);
@@ -61,19 +63,31 @@ const shovelURL = new URL('../models/shovel.glb', import.meta.url);
 const canURL = new URL('../models/can.glb', import.meta.url);
 const cloudURL = new URL('../models/cloud.glb', import.meta.url);
 const boxURL = new URL('../models/box.glb', import.meta.url);
-const packetURL = new URL('../models/packet.glb', import.meta.url);
+const packetURL = new URL('../models/packet_1.glb', import.meta.url);
+const packet2URL = new URL('../models/packet_1.glb', import.meta.url);
+const packet3URL = new URL('../models/packet_1.glb', import.meta.url);
+const packet4URL = new URL('../models/packet_1.glb', import.meta.url);
+const packet5URL = new URL('../models/packet_1.glb', import.meta.url);
+const packet6URL = new URL('../models/packet_1.glb', import.meta.url);
 const tableURL = new URL('../models/Table.glb', import.meta.url);
-const plantURL = new URL('../models/flowers.glb', import.meta.url);
+const plant1URL = new URL('../models/flower_1.glb', import.meta.url);
+const plant2URL = new URL('../models/flower_2.glb', import.meta.url);
+const plant3URL = new URL('../models/flower_3.glb', import.meta.url);
+const plant4URL = new URL('../models/flower_4.glb', import.meta.url);
+const plant5URL = new URL('../models/flower_5.glb', import.meta.url);
+const plant6URL = new URL('../models/flower_6.glb', import.meta.url);
+const windmillBaseURL = new URL('../models/windmillBase.glb', import.meta.url);
+const windmillBladeURL = new URL('../models/windMillBlade.glb', import.meta.url);
 
 // Primitive Geometry
 const moundGeometry = new THREE.TorusGeometry(0.05, .02, 16, 10 );
-const sphereGeometry = new THREE.SphereBufferGeometry(.05, 12, 12);
-const packetGeometry = new THREE.BoxGeometry(0.45,0.3,0.65);
+const sphereGeometry = new THREE.SphereBufferGeometry(.02, 12, 12);
+const packetGeometry = new THREE.BoxGeometry(0.45,0.3,0.45);
 const dirtGeometry = new THREE.BoxGeometry(1.1,0.1,1.4);
 const plantHitboxGeometry = new THREE.BoxGeometry(0.15,0.6,0.15);
 
 // Materials
-scene.background = new THREE.Color(0x85dde6)
+scene.background = new THREE.Color(0xb3ffe3)
 scene.fog = new THREE.Fog( 0xa0a0a0, 10, 50 );
 
 
@@ -83,13 +97,37 @@ const table_mat = new THREE.MeshStandardMaterial()
 const box_mat = new THREE.MeshStandardMaterial()
 const cloud_mat = new THREE.MeshStandardMaterial()
 const dirt_mat = new THREE.MeshStandardMaterial()
-const packet_mat = new THREE.MeshToonMaterial()
-const flower_mat = new THREE.MeshToonMaterial()
+const packet1_mat = new THREE.MeshToonMaterial()
+const packet2_mat = new THREE.MeshToonMaterial()
+const packet3_mat = new THREE.MeshToonMaterial()
+const packet4_mat = new THREE.MeshToonMaterial()
+const packet5_mat = new THREE.MeshToonMaterial()
+const packet6_mat = new THREE.MeshToonMaterial()
+const petal_1_mat = new THREE.MeshToonMaterial()
+const petal_2_mat = new THREE.MeshToonMaterial()
+const petal_3_mat = new THREE.MeshToonMaterial()
+const petal_4_mat = new THREE.MeshToonMaterial()
+const petal_5_mat = new THREE.MeshToonMaterial()
+const leaf_1_mat = new THREE.MeshToonMaterial()
+const leaf_2_mat = new THREE.MeshToonMaterial()
+const leaf_3_mat = new THREE.MeshToonMaterial()
+const leaf_4_mat = new THREE.MeshToonMaterial()
+const leaf_5_mat = new THREE.MeshToonMaterial()
 table_mat.color = new THREE.Color(0x876031)
 box_mat.color = new THREE.Color(0xb58b4c)
 cloud_mat.color = new THREE.Color(0xd1eaeb)
 dirt_mat.color = new THREE.Color(0x422e1c)
 def_mat.color = new THREE.Color(0xaf00af)
+petal_1_mat.color = new THREE.Color(0xd05aed)
+petal_2_mat.color = new THREE.Color(0xf2841d)
+petal_3_mat.color = new THREE.Color(0xc24a0a)
+petal_4_mat.color = new THREE.Color(0x573753)
+petal_5_mat.color = new THREE.Color(0xf2841d)
+leaf_1_mat.color = new THREE.Color(0x456837)
+leaf_2_mat.color = new THREE.Color(0x527C42)
+leaf_3_mat.color = new THREE.Color(0x516D41)
+leaf_4_mat.color = new THREE.Color(0x6F742D)
+leaf_5_mat.color = new THREE.Color(0xe8cb3a)
 
 // Create Meshes
 const b1 = new THREE.Mesh(packetGeometry, clear_mat)
@@ -102,46 +140,105 @@ b2.position.set(4.5,0.5,-0.23);
 b2.rotation.set(0,-0.2,0);
 b2.name = "box"
 hitboxes[b2.id] = b2;
+const b3 = new THREE.Mesh(packetGeometry, clear_mat)
+b3.position.set(5,0.5,-0.05);
+b3.rotation.set(0,-0.2,0);
+b3.name = "box"
+hitboxes[b3.id] = b3;
+const b4 = new THREE.Mesh(packetGeometry, clear_mat)
+b4.position.set(3.8,0.5,0.1);
+b4.rotation.set(0,-0.2,0);
+b4.name = "box"
+hitboxes[b4.id] = b4;
+const b5 = new THREE.Mesh(packetGeometry, clear_mat)
+b5.position.set(4.3,0.5,0.3);
+b5.rotation.set(0,-0.2,0);
+b5.name = "box"
+hitboxes[b5.id] = b5;
+const b6 = new THREE.Mesh(packetGeometry, clear_mat)
+b6.position.set(4.8,0.5,0.5);
+b6.rotation.set(0,-0.2,0);
+b6.name = "box"
+hitboxes[b6.id] = b6;
 const dirt_box = new THREE.Mesh(dirtGeometry, clear_mat)
 dirt_box.position.set(1.9,0.8,0);
 dirt_box.rotation.set(0,1.57,0);
 dirt_box.name = "dirt"
 
 
-const plant1_hitbox = new THREE.Mesh(plantHitboxGeometry, def_mat);
-const plant2_hitbox = new THREE.Mesh(plantHitboxGeometry, def_mat);
+const plant1_hitbox = new THREE.Mesh(plantHitboxGeometry, clear_mat);
+const plant2_hitbox = new THREE.Mesh(plantHitboxGeometry, clear_mat);
+const plant3_hitbox = new THREE.Mesh(plantHitboxGeometry, clear_mat);
+const plant4_hitbox = new THREE.Mesh(plantHitboxGeometry, clear_mat);
+const plant5_hitbox = new THREE.Mesh(plantHitboxGeometry, clear_mat);
+const plant6_hitbox = new THREE.Mesh(plantHitboxGeometry, clear_mat);
 plant1_hitbox.position.set(0,-2,0);
 plant2_hitbox.position.set(0,-2,0);
+plant3_hitbox.position.set(0,-2,0);
+plant4_hitbox.position.set(0,-2,0);
+plant5_hitbox.position.set(0,-2,0);
+plant6_hitbox.position.set(0,-2,0);
 plant1_hitbox.name = "plant";
 plant2_hitbox.name = "plant";
+plant3_hitbox.name = "plant";
+plant4_hitbox.name = "plant";
+plant5_hitbox.name = "plant";
+plant6_hitbox.name = "plant";
 hitboxes[plant1_hitbox.id] = plant1_hitbox;
 hitboxes[plant2_hitbox.id] = plant2_hitbox;
+hitboxes[plant3_hitbox.id] = plant3_hitbox;
+hitboxes[plant4_hitbox.id] = plant4_hitbox;
+hitboxes[plant5_hitbox.id] = plant5_hitbox;
+hitboxes[plant6_hitbox.id] = plant6_hitbox;
 const hitIndicator = new THREE.Mesh(sphereGeometry, def_mat)
 hitIndicator.position.set(0,-4,0);
 
 scene.add(b1);
 scene.add(b2);
+scene.add(b3);
+scene.add(b4);
+scene.add(b5);
+scene.add(b6);
 scene.add(dirt_box);
 scene.add(hitIndicator);
 scene.add(plant1_hitbox);
 scene.add(plant2_hitbox);
+scene.add(plant3_hitbox);
+scene.add(plant4_hitbox);
+scene.add(plant5_hitbox);
+scene.add(plant6_hitbox);
 
 seedToPlants[b1.id] = plant1_hitbox.id;
 seedToPlants[b2.id] = plant2_hitbox.id;
+seedToPlants[b3.id] = plant3_hitbox.id;
+seedToPlants[b4.id] = plant4_hitbox.id;
+seedToPlants[b5.id] = plant5_hitbox.id;
+seedToPlants[b6.id] = plant6_hitbox.id;
 
 
 CreateMesh(canURL, [cloud_mat, cloud_mat, cloud_mat, cloud_mat, cloud_mat], [3.2,-0.1,0.6], [0,0,0], 0.2, canId)
 CreateMesh(shovelURL, [box_mat, dirt_mat], [4,0,1], [0,1.7,0], 0.2, shovelId)
-CreateMesh(packetURL, [packet_mat], [4,0.5,-0.4], [0,1.3,0], 0.2, b1.id)
-CreateMesh(packetURL, [packet_mat], [4.5,0.5,-0.23], [0,1.3,0], 0.2, b2.id)
+CreateMesh(packetURL, [packet1_mat], [4,0.5,-0.4], [0,1.3,0], 0.2, b1.id)
+CreateMesh(packet2URL, [packet2_mat], [4.5,0.5,-0.23], [0,1.3,0], 0.2, b2.id)
+CreateMesh(packet3URL, [packet3_mat], [5,0.5,-0.23], [0,1.3,0], 0.2, b3.id)
+CreateMesh(packet4URL, [packet4_mat], [3.8,0.5], [0,1.3,0], 0.2, b4.id)
+CreateMesh(packet5URL, [packet5_mat], [4.3,0.5,0.3], [0,1.3,0], 0.2, b5.id)
+CreateMesh(packet6URL, [packet6_mat], [4.8,0.5,0.5], [0,1.3,0], 0.2, b6.id)
 CreateMesh(cloudURL, [cloud_mat], [2,-2,0], [0,0,0.1], 0.1)
 CreateMesh(cloudURL, [cloud_mat], [-5,20,-20], [0,0,0], 0.2)
 CreateMesh(cloudURL, [cloud_mat], [15,-2,-80], [0,0,0], 0.3)
 CreateMesh(cloudURL, [cloud_mat], [2,-20,-50], [0,0,0], 0.2)
 CreateMesh(tableURL, [table_mat], [4.4,-0.3,0], [0,1.27,0], 0.07)
+CreateMesh(windmillBaseURL, [table_mat,table_mat,dirt_mat,dirt_mat], [0.3,0,0], [0,-1,0], 0.3)
+CreateMesh(windmillBladeURL, [table_mat], [0.3,0,0], [0,-1,0], 0.3, windmillBladeId)
 CreateMesh(boxURL, [box_mat, dirt_mat], [1.9,0.2,0], [0,1.57,0], 0.08)
-CreateMesh(plantURL, [flower_mat], [1,-1.3,0], [0,0,0], 0.6, plant1_hitbox.id)
-CreateMesh(plantURL, [flower_mat], [1,-1.3,1], [0,0,0], 0.6, plant2_hitbox.id)
+CreateMesh(plant1URL, [petal_1_mat, leaf_1_mat,leaf_2_mat,leaf_3_mat,leaf_4_mat,leaf_2_mat], [1,-1.3,0], [0,0,0], 0.5, plant2_hitbox.id)
+CreateMesh(plant2URL, [leaf_1_mat, petal_2_mat,petal_3_mat,leaf_5_mat,petal_3_mat], [1,-1.3,0], [0,0,0], 0.5, plant1_hitbox.id)
+CreateMesh(plant3URL, [petal_3_mat, petal_4_mat], [1,-1.3,0], [0,0,0], 0.5, plant1_hitbox.id)
+CreateMesh(plant4URL, [petal_5_mat, leaf_5_mat,leaf_1_mat,leaf_2_mat,leaf_3_mat], [1,-1.3,0], [0,0,0], 0.5)
+CreateMesh(plant5URL, [petal_5_mat, petal_5_mat,leaf_5_mat,petal_4_mat,leaf_3_mat,petal_1_mat,petal_1_mat], [1,-1.3,0], [0,0,0], 0.5)
+CreateMesh(plant6URL, [packet1_mat], [1,-1.3,0], [0,0,0], 0.5)
+
 
 // Lights
 const dirLight = new THREE.DirectionalLight( 0xffffff);
@@ -153,6 +250,8 @@ dirLight.shadow.camera.left = -10;
 dirLight.shadow.camera.right = 10;
 dirLight.shadow.camera.near = 0.1;
 dirLight.shadow.camera.far = 40;
+dirLight.shadow.mapSize.width = 2048;
+dirLight.shadow.mapSize.height = 2048;
 scene.add( dirLight );
 
 const hemiLight = new THREE.HemisphereLight( 0xeef0c0, 0x444444, 1.2 );
@@ -196,7 +295,12 @@ const renderer = new THREE.WebGLRenderer({
 })
 renderer.setSize(sizes.width, sizes.height)
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
-renderer.shadowMap.enabled = true
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.shadowMap.enabled = true;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.75;
+
+
 
 // Mouse
 mouse = new THREE.Vector2
@@ -210,8 +314,12 @@ controls.panSpeed = 2
 controls.enableDamping = true
 
 //HTML articles in dictionary so that when the plant is clicked on it's brought up
-plantHitboxToArticle[plant1_hitbox.id] = "<button>HELLO</button>"
-plantHitboxToArticle[plant2_hitbox.id] = "<p>WHERe's the beef</p>"
+plantHitboxToArticle[plant1_hitbox.id] = '<a herf="https://github.com/johnCavatelli">Link to Github</a>'
+plantHitboxToArticle[plant2_hitbox.id] = '<a href="https://amazon.com">Link to my book on Amazon</a>'
+// plantHitboxToArticle[plant3_hitbox.id] = '<a href="./files/resume.pdf>Open my resume in a new tab</a>'
+// plantHitboxToArticle[plant4_hitbox.id] = '<p>About Me!</p>'
+// plantHitboxToArticle[plant5_hitbox.id] = '<p>Personal Projects</p>'
+// plantHitboxToArticle[plant6_hitbox.id] = '<p>I started game development in the Unity Game Engine in March of 2020</p><a href="itch.io/johnCavatelli">My games hosted on Itch.io</a>'
 
 
 /**
@@ -223,7 +331,11 @@ const clock = new THREE.Clock()
 const tick = () =>
 {    
     const elapsedTime = clock.getElapsedTime()
-    // controls.update();
+    // models[windmillBladeId].children[0].rotation.y = .5 * elapsedTime;
+    // models[windmillBladeId].rotation.set({x:.5 * elapsedTime})
+    if(models[windmillBladeId] != null){models[windmillBladeId].children[0].rotation.x = .5 * elapsedTime;}
+    // console.log(models[windmillBladeId]);
+    //controls.update();
 
     switch(currentState) {
         case states["intro"]:
@@ -314,6 +426,8 @@ const tick = () =>
                     break;
                 }
             }
+            break;
+        case states["lookPage"]:
             break;
         default:
           // code block
@@ -417,17 +531,19 @@ function ChangeState(newState){
         case states["intro"]:
             currentState = states["intro"];
             ChangeCameraValues(6,4,8,-0.3,0.3,0,0);
-            ChangeHTMLStates({text_welcome: "",button_start: "",text_loading:"none", start_button:"none", button_garden:"none", button_seeds:"none", button_back:"none"});
+            ChangeHTMLStates({text_welcome: "",button_start: "",text_loading:"none", start_button:"none", button_garden:"none", button_seeds:"none", button_back:"none", text_article:"none", text_instructions:"none"});
             break;
         case states["lookSeeds"]:
             currentState = states["lookSeeds"];
             ChangeCameraValues(4.3,2,0,-1.5,0,0,2);
-            ChangeHTMLStates({text_welcome: "none",button_start: "none",text_loading:"none", button_back:"none", button_garden: "", button_seeds: "none"});
+            instructions_text.innerHTML = "<p>Choose some seeds to plant</p>"
+            ChangeHTMLStates({text_welcome: "none",button_start: "none",text_loading:"none", button_back:"none", button_garden: "", button_seeds: "none", text_instructions:""});
           break;
         case states["lookGarden"]:
             currentState = states["lookGarden"];
             ChangeCameraValues(2,2.3,1.6,-0.8,0,0,2);
-            ChangeHTMLStates({text_article:"none", button_back: "none", button_garden:"none", button_seeds:""});
+            instructions_text.innerHTML = "<p>Click on a plant</p>"
+            ChangeHTMLStates({text_article:"none", button_back: "none", button_garden:"none", button_seeds:"", text_instructions:"",text_article:"none"});
         break;
         case states["diggingHole"]:
             currentState = states["diggingHole"];
@@ -460,7 +576,8 @@ function ChangeState(newState){
                 ease: "power3.out"         
             })            
             ChangeCameraValues(2,2.3,1.6,-0.8,0,0,2);
-            ChangeHTMLStates({button_back: "none", button_garden:"none", button_seeds:"none"});
+            instructions_text.innerHTML = "<p>Dig a hole</p>"
+            ChangeHTMLStates({button_back: "none", button_garden:"none", button_seeds:"none", text_instructions:""});
           break;
         case states["plantingSeed"]:
             currentState = states["plantingSeed"];
@@ -511,7 +628,8 @@ function ChangeState(newState){
                 duration: 1,
                 delay: 1,
                 ease: "power2.out"         
-            })            
+            })
+            instructions_text.innerHTML = "<p>Click the hole to Plant the seeds</p>"
             break;
         case states["wateringPlant"]:
             currentState = states["wateringPlant"];
@@ -545,11 +663,13 @@ function ChangeState(newState){
                 delay: 1,
                 duration: 0.5,
                 ease: "power2.out"   
-            })    
+            })
+            instructions_text.innerHTML = "<p>Click the hole to give the plant some water</p>"    
             break;
         case states["lookPage"]:
+            currentState = states["lookPage"];
             article_text.innerHTML = plantHitboxToArticle[selectedPlantId];
-            ChangeHTMLStates({button_back: "", button_garden:"none", button_seeds:"none",text_article:""})
+            ChangeHTMLStates({button_back: "", button_garden:"none", button_seeds:"none",text_article:"",text_instructions:"none"})
             break;
         default:
           // code block
@@ -573,14 +693,15 @@ function ChangeCameraValues(camX,camY,camZ, camRX,camRY,camRZ, dur){
     })
 }
 
-function ChangeHTMLStates({text_loading, text_welcome, button_start, button_garden, button_seeds, button_back, text_article} = {}){
+function ChangeHTMLStates({text_loading, text_welcome, button_start, button_garden, button_seeds, button_back, text_article, text_instructions} = {}){
     loading_text.style.display = text_loading;
     welcome_text.style.display = text_welcome;
     start_button.style.display = button_start;
     garden_button.style.display = button_garden;
     seeds_button.style.display = button_seeds;
     back_button.style.display = button_back;
-    article_text.style.display = text_article
+    article_text.style.display = text_article;
+    instructions_text.style.display = text_instructions;
 }
 
 function CreateMesh(url, materials, position, rotation, scale, colliderId){

@@ -1,5 +1,3 @@
-Add hitbox for flowers
-Add Clicking on hitbox of flowers to trigger state change to change inner text
 Scrolling Background clouds
 Styling for the buttons
 styling for side-window
