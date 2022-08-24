@@ -4,7 +4,7 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import {GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader'
 import * as dat from 'dat.gui'
 import gsap from 'gsap'
-import { StencilOp, Vector3 } from 'three'
+// import { StencilOp, Vector3 } from 'three'
 
 //Variables
 const states = { 
@@ -53,7 +53,7 @@ seeds_button.addEventListener("click", function(){ChangeState(states["lookSeeds"
 back_button.addEventListener("click", function(){ChangeState(states["lookGarden"])});
 
 //ThreeJS Setup
-const gui = new dat.GUI() // Debug
+// const gui = new dat.GUI() // Debug
 const canvas = document.querySelector('canvas.webgl') // Canvas
 const scene = new THREE.Scene() // Scene
 const gltfLoader = new GLTFLoader(loadingManager);
@@ -63,7 +63,12 @@ const shovelURL = new URL('../models/shovel.glb', import.meta.url);
 const canURL = new URL('../models/can.glb', import.meta.url);
 const cloudURL = new URL('../models/cloud.glb', import.meta.url);
 const boxURL = new URL('../models/box.glb', import.meta.url);
-const packetURL = new URL('../models/packet.glb', import.meta.url);
+const packetURL = new URL('../models/packet_1.glb', import.meta.url);
+const packet2URL = new URL('../models/packet_1.glb', import.meta.url);
+const packet3URL = new URL('../models/packet_1.glb', import.meta.url);
+const packet4URL = new URL('../models/packet_1.glb', import.meta.url);
+const packet5URL = new URL('../models/packet_1.glb', import.meta.url);
+const packet6URL = new URL('../models/packet_1.glb', import.meta.url);
 const tableURL = new URL('../models/Table.glb', import.meta.url);
 const plant1URL = new URL('../models/flower_1.glb', import.meta.url);
 const plant2URL = new URL('../models/flower_2.glb', import.meta.url);
@@ -77,7 +82,7 @@ const windmillBladeURL = new URL('../models/windMillBlade.glb', import.meta.url)
 // Primitive Geometry
 const moundGeometry = new THREE.TorusGeometry(0.05, .02, 16, 10 );
 const sphereGeometry = new THREE.SphereBufferGeometry(.02, 12, 12);
-const packetGeometry = new THREE.BoxGeometry(0.45,0.3,0.65);
+const packetGeometry = new THREE.BoxGeometry(0.45,0.3,0.45);
 const dirtGeometry = new THREE.BoxGeometry(1.1,0.1,1.4);
 const plantHitboxGeometry = new THREE.BoxGeometry(0.15,0.6,0.15);
 
@@ -92,7 +97,12 @@ const table_mat = new THREE.MeshStandardMaterial()
 const box_mat = new THREE.MeshStandardMaterial()
 const cloud_mat = new THREE.MeshStandardMaterial()
 const dirt_mat = new THREE.MeshStandardMaterial()
-const packet_mat = new THREE.MeshToonMaterial()
+const packet1_mat = new THREE.MeshToonMaterial()
+const packet2_mat = new THREE.MeshToonMaterial()
+const packet3_mat = new THREE.MeshToonMaterial()
+const packet4_mat = new THREE.MeshToonMaterial()
+const packet5_mat = new THREE.MeshToonMaterial()
+const packet6_mat = new THREE.MeshToonMaterial()
 const petal_1_mat = new THREE.MeshToonMaterial()
 const petal_2_mat = new THREE.MeshToonMaterial()
 const petal_3_mat = new THREE.MeshToonMaterial()
@@ -130,6 +140,26 @@ b2.position.set(4.5,0.5,-0.23);
 b2.rotation.set(0,-0.2,0);
 b2.name = "box"
 hitboxes[b2.id] = b2;
+const b3 = new THREE.Mesh(packetGeometry, clear_mat)
+b3.position.set(5,0.5,-0.05);
+b3.rotation.set(0,-0.2,0);
+b3.name = "box"
+hitboxes[b3.id] = b3;
+const b4 = new THREE.Mesh(packetGeometry, clear_mat)
+b4.position.set(3.8,0.5,0.1);
+b4.rotation.set(0,-0.2,0);
+b4.name = "box"
+hitboxes[b4.id] = b4;
+const b5 = new THREE.Mesh(packetGeometry, clear_mat)
+b5.position.set(4.3,0.5,0.3);
+b5.rotation.set(0,-0.2,0);
+b5.name = "box"
+hitboxes[b5.id] = b5;
+const b6 = new THREE.Mesh(packetGeometry, clear_mat)
+b6.position.set(4.8,0.5,0.5);
+b6.rotation.set(0,-0.2,0);
+b6.name = "box"
+hitboxes[b6.id] = b6;
 const dirt_box = new THREE.Mesh(dirtGeometry, clear_mat)
 dirt_box.position.set(1.9,0.8,0);
 dirt_box.rotation.set(0,1.57,0);
@@ -138,30 +168,62 @@ dirt_box.name = "dirt"
 
 const plant1_hitbox = new THREE.Mesh(plantHitboxGeometry, clear_mat);
 const plant2_hitbox = new THREE.Mesh(plantHitboxGeometry, clear_mat);
+const plant3_hitbox = new THREE.Mesh(plantHitboxGeometry, clear_mat);
+const plant4_hitbox = new THREE.Mesh(plantHitboxGeometry, clear_mat);
+const plant5_hitbox = new THREE.Mesh(plantHitboxGeometry, clear_mat);
+const plant6_hitbox = new THREE.Mesh(plantHitboxGeometry, clear_mat);
 plant1_hitbox.position.set(0,-2,0);
 plant2_hitbox.position.set(0,-2,0);
+plant3_hitbox.position.set(0,-2,0);
+plant4_hitbox.position.set(0,-2,0);
+plant5_hitbox.position.set(0,-2,0);
+plant6_hitbox.position.set(0,-2,0);
 plant1_hitbox.name = "plant";
 plant2_hitbox.name = "plant";
+plant3_hitbox.name = "plant";
+plant4_hitbox.name = "plant";
+plant5_hitbox.name = "plant";
+plant6_hitbox.name = "plant";
 hitboxes[plant1_hitbox.id] = plant1_hitbox;
 hitboxes[plant2_hitbox.id] = plant2_hitbox;
+hitboxes[plant3_hitbox.id] = plant3_hitbox;
+hitboxes[plant4_hitbox.id] = plant4_hitbox;
+hitboxes[plant5_hitbox.id] = plant5_hitbox;
+hitboxes[plant6_hitbox.id] = plant6_hitbox;
 const hitIndicator = new THREE.Mesh(sphereGeometry, def_mat)
 hitIndicator.position.set(0,-4,0);
 
 scene.add(b1);
 scene.add(b2);
+scene.add(b3);
+scene.add(b4);
+scene.add(b5);
+scene.add(b6);
 scene.add(dirt_box);
 scene.add(hitIndicator);
 scene.add(plant1_hitbox);
 scene.add(plant2_hitbox);
+scene.add(plant3_hitbox);
+scene.add(plant4_hitbox);
+scene.add(plant5_hitbox);
+scene.add(plant6_hitbox);
 
 seedToPlants[b1.id] = plant1_hitbox.id;
 seedToPlants[b2.id] = plant2_hitbox.id;
+seedToPlants[b3.id] = plant3_hitbox.id;
+seedToPlants[b4.id] = plant4_hitbox.id;
+seedToPlants[b5.id] = plant5_hitbox.id;
+seedToPlants[b6.id] = plant6_hitbox.id;
 
 
 CreateMesh(canURL, [cloud_mat, cloud_mat, cloud_mat, cloud_mat, cloud_mat], [3.2,-0.1,0.6], [0,0,0], 0.2, canId)
 CreateMesh(shovelURL, [box_mat, dirt_mat], [4,0,1], [0,1.7,0], 0.2, shovelId)
-CreateMesh(packetURL, [packet_mat], [4,0.5,-0.4], [0,1.3,0], 0.2, b1.id)
-CreateMesh(packetURL, [packet_mat], [4.5,0.5,-0.23], [0,1.3,0], 0.2, b2.id)
+CreateMesh(packetURL, [packet1_mat], [4,0.5,-0.4], [0,1.3,0], 0.2, b1.id)
+CreateMesh(packet2URL, [packet2_mat], [4.5,0.5,-0.23], [0,1.3,0], 0.2, b2.id)
+CreateMesh(packet3URL, [packet3_mat], [5,0.5,-0.23], [0,1.3,0], 0.2, b3.id)
+CreateMesh(packet4URL, [packet4_mat], [3.8,0.5], [0,1.3,0], 0.2, b4.id)
+CreateMesh(packet5URL, [packet5_mat], [4.3,0.5,0.3], [0,1.3,0], 0.2, b5.id)
+CreateMesh(packet6URL, [packet6_mat], [4.8,0.5,0.5], [0,1.3,0], 0.2, b6.id)
 CreateMesh(cloudURL, [cloud_mat], [2,-2,0], [0,0,0.1], 0.1)
 CreateMesh(cloudURL, [cloud_mat], [-5,20,-20], [0,0,0], 0.2)
 CreateMesh(cloudURL, [cloud_mat], [15,-2,-80], [0,0,0], 0.3)
@@ -175,7 +237,7 @@ CreateMesh(plant2URL, [leaf_1_mat, petal_2_mat,petal_3_mat,leaf_5_mat,petal_3_ma
 CreateMesh(plant3URL, [petal_3_mat, petal_4_mat], [1,-1.3,0], [0,0,0], 0.5, plant1_hitbox.id)
 CreateMesh(plant4URL, [petal_5_mat, leaf_5_mat,leaf_1_mat,leaf_2_mat,leaf_3_mat], [1,-1.3,0], [0,0,0], 0.5)
 CreateMesh(plant5URL, [petal_5_mat, petal_5_mat,leaf_5_mat,petal_4_mat,leaf_3_mat,petal_1_mat,petal_1_mat], [1,-1.3,0], [0,0,0], 0.5)
-CreateMesh(plant6URL, [packet_mat], [1,-1.3,0], [0,0,0], 0.5)
+CreateMesh(plant6URL, [packet1_mat], [1,-1.3,0], [0,0,0], 0.5)
 
 
 // Lights
@@ -567,7 +629,7 @@ function ChangeState(newState){
                 delay: 1,
                 ease: "power2.out"         
             })
-            instructions_text.innerHTML = "<p>Plant the seeds in the hole</p>"
+            instructions_text.innerHTML = "<p>Click the hole to Plant the seeds</p>"
             break;
         case states["wateringPlant"]:
             currentState = states["wateringPlant"];
@@ -602,7 +664,7 @@ function ChangeState(newState){
                 duration: 0.5,
                 ease: "power2.out"   
             })
-            instructions_text.innerHTML = "<p>Water the plant</p>"    
+            instructions_text.innerHTML = "<p>Click the hole to give the plant some water</p>"    
             break;
         case states["lookPage"]:
             currentState = states["lookPage"];
