@@ -65,7 +65,12 @@ const cloudURL = new URL('../models/cloud.glb', import.meta.url);
 const boxURL = new URL('../models/box.glb', import.meta.url);
 const packetURL = new URL('../models/packet.glb', import.meta.url);
 const tableURL = new URL('../models/Table.glb', import.meta.url);
-const plantURL = new URL('../models/flowers.glb', import.meta.url);
+const plant1URL = new URL('../models/flower_1.glb', import.meta.url);
+const plant2URL = new URL('../models/flower_2.glb', import.meta.url);
+const plant3URL = new URL('../models/flower_3.glb', import.meta.url);
+const plant4URL = new URL('../models/flower_4.glb', import.meta.url);
+const plant5URL = new URL('../models/flower_5.glb', import.meta.url);
+const plant6URL = new URL('../models/flower_6.glb', import.meta.url);
 const windmillBaseURL = new URL('../models/windmillBase.glb', import.meta.url);
 const windmillBladeURL = new URL('../models/windMillBlade.glb', import.meta.url);
 
@@ -88,12 +93,31 @@ const box_mat = new THREE.MeshStandardMaterial()
 const cloud_mat = new THREE.MeshStandardMaterial()
 const dirt_mat = new THREE.MeshStandardMaterial()
 const packet_mat = new THREE.MeshToonMaterial()
-const flower_mat = new THREE.MeshToonMaterial()
+const petal_1_mat = new THREE.MeshToonMaterial()
+const petal_2_mat = new THREE.MeshToonMaterial()
+const petal_3_mat = new THREE.MeshToonMaterial()
+const petal_4_mat = new THREE.MeshToonMaterial()
+const petal_5_mat = new THREE.MeshToonMaterial()
+const leaf_1_mat = new THREE.MeshToonMaterial()
+const leaf_2_mat = new THREE.MeshToonMaterial()
+const leaf_3_mat = new THREE.MeshToonMaterial()
+const leaf_4_mat = new THREE.MeshToonMaterial()
+const leaf_5_mat = new THREE.MeshToonMaterial()
 table_mat.color = new THREE.Color(0x876031)
 box_mat.color = new THREE.Color(0xb58b4c)
 cloud_mat.color = new THREE.Color(0xd1eaeb)
 dirt_mat.color = new THREE.Color(0x422e1c)
 def_mat.color = new THREE.Color(0xaf00af)
+petal_1_mat.color = new THREE.Color(0xd05aed)
+petal_2_mat.color = new THREE.Color(0xf2841d)
+petal_3_mat.color = new THREE.Color(0xc24a0a)
+petal_4_mat.color = new THREE.Color(0x573753)
+petal_5_mat.color = new THREE.Color(0xf2841d)
+leaf_1_mat.color = new THREE.Color(0x456837)
+leaf_2_mat.color = new THREE.Color(0x527C42)
+leaf_3_mat.color = new THREE.Color(0x516D41)
+leaf_4_mat.color = new THREE.Color(0x6F742D)
+leaf_5_mat.color = new THREE.Color(0xe8cb3a)
 
 // Create Meshes
 const b1 = new THREE.Mesh(packetGeometry, clear_mat)
@@ -143,11 +167,16 @@ CreateMesh(cloudURL, [cloud_mat], [-5,20,-20], [0,0,0], 0.2)
 CreateMesh(cloudURL, [cloud_mat], [15,-2,-80], [0,0,0], 0.3)
 CreateMesh(cloudURL, [cloud_mat], [2,-20,-50], [0,0,0], 0.2)
 CreateMesh(tableURL, [table_mat], [4.4,-0.3,0], [0,1.27,0], 0.07)
-CreateMesh(windmillBaseURL, [table_mat,table_mat,dirt_mat,dirt_mat], [0,-0,0], [0,-1,0], 0.3)
-CreateMesh(windmillBladeURL, [table_mat], [0,0,0], [0,-1,0], 0.3)
+CreateMesh(windmillBaseURL, [table_mat,table_mat,dirt_mat,dirt_mat], [0.3,0,0], [0,-1,0], 0.3)
+CreateMesh(windmillBladeURL, [table_mat], [0.3,0,0], [0,-1,0], 0.3, windmillBladeId)
 CreateMesh(boxURL, [box_mat, dirt_mat], [1.9,0.2,0], [0,1.57,0], 0.08)
-CreateMesh(plantURL, [flower_mat], [1,-1.3,0], [0,0,0], 0.6, plant1_hitbox.id)
-CreateMesh(plantURL, [flower_mat], [1,-1.3,1], [0,0,0], 0.6, plant2_hitbox.id)
+CreateMesh(plant1URL, [petal_1_mat, leaf_1_mat,leaf_2_mat,leaf_3_mat,leaf_4_mat,leaf_2_mat], [1,-1.3,0], [0,0,0], 0.5, plant2_hitbox.id)
+CreateMesh(plant2URL, [leaf_1_mat, petal_2_mat,petal_3_mat,leaf_5_mat,petal_3_mat], [1,-1.3,0], [0,0,0], 0.5, plant1_hitbox.id)
+CreateMesh(plant3URL, [petal_3_mat, petal_4_mat], [1,-1.3,0], [0,0,0], 0.5, plant1_hitbox.id)
+CreateMesh(plant4URL, [petal_5_mat, leaf_5_mat,leaf_1_mat,leaf_2_mat,leaf_3_mat], [1,-1.3,0], [0,0,0], 0.5)
+CreateMesh(plant5URL, [petal_5_mat, petal_5_mat,leaf_5_mat,petal_4_mat,leaf_3_mat,petal_1_mat,petal_1_mat], [1,-1.3,0], [0,0,0], 0.5)
+CreateMesh(plant6URL, [packet_mat], [1,-1.3,0], [0,0,0], 0.5)
+
 
 // Lights
 const dirLight = new THREE.DirectionalLight( 0xffffff);
@@ -224,7 +253,11 @@ controls.enableDamping = true
 
 //HTML articles in dictionary so that when the plant is clicked on it's brought up
 plantHitboxToArticle[plant1_hitbox.id] = '<a herf="https://github.com/johnCavatelli">Link to Github</a>'
-plantHitboxToArticle[plant2_hitbox.id] = ''
+plantHitboxToArticle[plant2_hitbox.id] = '<a href="https://amazon.com">Link to my book on Amazon</a>'
+// plantHitboxToArticle[plant3_hitbox.id] = '<a href="./files/resume.pdf>Open my resume in a new tab</a>'
+// plantHitboxToArticle[plant4_hitbox.id] = '<p>About Me!</p>'
+// plantHitboxToArticle[plant5_hitbox.id] = '<p>Personal Projects</p>'
+// plantHitboxToArticle[plant6_hitbox.id] = '<p>I started game development in the Unity Game Engine in March of 2020</p><a href="itch.io/johnCavatelli">My games hosted on Itch.io</a>'
 
 
 /**
@@ -236,6 +269,10 @@ const clock = new THREE.Clock()
 const tick = () =>
 {    
     const elapsedTime = clock.getElapsedTime()
+    // models[windmillBladeId].children[0].rotation.y = .5 * elapsedTime;
+    // models[windmillBladeId].rotation.set({x:.5 * elapsedTime})
+    if(models[windmillBladeId] != null){models[windmillBladeId].children[0].rotation.x = .5 * elapsedTime;}
+    // console.log(models[windmillBladeId]);
     //controls.update();
 
     switch(currentState) {
