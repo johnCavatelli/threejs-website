@@ -220,10 +220,10 @@ CreateMesh(canURL, [cloud_mat, cloud_mat, cloud_mat, cloud_mat, cloud_mat], [3.2
 CreateMesh(shovelURL, [box_mat, dirt_mat], [4,0,1], [0,1.7,0], 0.2, shovelId)
 CreateMesh(packetURL, [packet1_mat], [4,0.5,-0.4], [0,1.3,0], 0.2, b1.id)
 CreateMesh(packet2URL, [packet2_mat], [4.5,0.5,-0.23], [0,1.3,0], 0.2, b2.id)
-CreateMesh(packet3URL, [packet3_mat], [5,0.5,-0.23], [0,1.3,0], 0.2, b3.id)
-CreateMesh(packet4URL, [packet4_mat], [3.8,0.5], [0,1.3,0], 0.2, b4.id)
-CreateMesh(packet5URL, [packet5_mat], [4.3,0.5,0.3], [0,1.3,0], 0.2, b5.id)
-CreateMesh(packet6URL, [packet6_mat], [4.8,0.5,0.5], [0,1.3,0], 0.2, b6.id)
+CreateMesh(packet3URL, [packet3_mat], [5,0.5,-0.08], [0,1.3,0], 0.2, b3.id)
+CreateMesh(packet4URL, [packet4_mat], [3.83,0.5,0.22], [0,1.3,0], 0.2, b4.id)
+CreateMesh(packet5URL, [packet5_mat], [4.33,0.5,0.35], [0,1.3,0], 0.2, b5.id)
+CreateMesh(packet6URL, [packet6_mat], [4.82,0.5,0.5], [0,1.3,0], 0.2, b6.id)
 CreateMesh(cloudURL, [cloud_mat], [2,-2,0], [0,0,0.1], 0.1)
 CreateMesh(cloudURL, [cloud_mat], [-5,20,-20], [0,0,0], 0.2)
 CreateMesh(cloudURL, [cloud_mat], [15,-2,-80], [0,0,0], 0.3)
@@ -232,12 +232,12 @@ CreateMesh(tableURL, [table_mat], [4.4,-0.3,0], [0,1.27,0], 0.07)
 CreateMesh(windmillBaseURL, [table_mat,table_mat,dirt_mat,dirt_mat], [0.3,0,0], [0,-1,0], 0.3)
 CreateMesh(windmillBladeURL, [table_mat], [0.3,0,0], [0,-1,0], 0.3, windmillBladeId)
 CreateMesh(boxURL, [box_mat, dirt_mat], [1.9,0.2,0], [0,1.57,0], 0.08)
-CreateMesh(plant1URL, [petal_1_mat, leaf_1_mat,leaf_2_mat,leaf_3_mat,leaf_4_mat,leaf_2_mat], [1,-1.3,0], [0,0,0], 0.5, plant2_hitbox.id)
-CreateMesh(plant2URL, [leaf_1_mat, petal_2_mat,petal_3_mat,leaf_5_mat,petal_3_mat], [1,-1.3,0], [0,0,0], 0.5, plant1_hitbox.id)
-CreateMesh(plant3URL, [petal_3_mat, petal_4_mat], [1,-1.3,0], [0,0,0], 0.5, plant1_hitbox.id)
-CreateMesh(plant4URL, [petal_5_mat, leaf_5_mat,leaf_1_mat,leaf_2_mat,leaf_3_mat], [1,-1.3,0], [0,0,0], 0.5)
-CreateMesh(plant5URL, [petal_5_mat, petal_5_mat,leaf_5_mat,petal_4_mat,leaf_3_mat,petal_1_mat,petal_1_mat], [1,-1.3,0], [0,0,0], 0.5)
-CreateMesh(plant6URL, [packet1_mat], [1,-1.3,0], [0,0,0], 0.5)
+CreateMesh(plant1URL, [petal_1_mat, leaf_1_mat,leaf_2_mat,leaf_3_mat,leaf_4_mat,leaf_2_mat], [1,-1.3,0], [0,0,0], 0.5, plant1_hitbox.id)
+CreateMesh(plant2URL, [leaf_1_mat, petal_2_mat,petal_3_mat,leaf_5_mat,petal_3_mat], [1,-1.3,0], [0,0,0], 0.5, plant2_hitbox.id)
+CreateMesh(plant3URL, [petal_3_mat, petal_4_mat], [1,-1.3,0], [0,0,0], 0.5, plant3_hitbox.id)
+CreateMesh(plant4URL, [petal_5_mat, leaf_5_mat,leaf_1_mat,leaf_2_mat,leaf_3_mat], [1,-1.3,0], [0,0,0], 0.5, plant4_hitbox.id)
+CreateMesh(plant5URL, [petal_5_mat, petal_5_mat,leaf_5_mat,petal_4_mat,leaf_3_mat,petal_1_mat,petal_1_mat], [1,-1.3,0], [0,0,0], 0.5, plant5_hitbox.id)
+CreateMesh(plant6URL, [packet1_mat], [1,-1.3,0], [0,0,0], 0.5,plant6_hitbox.id)
 
 
 // Lights
@@ -453,6 +453,7 @@ function onClick(event){
             if(currentHover != null){
                 console.log("Clicked on: " + currentHover);
                 selectedSeedHitboxID = currentHover;
+                console.log("Current Hover: " + selectedSeedHitboxID)
                 currentHover = null;
                 ChangeState(states["diggingHole"])
             }
