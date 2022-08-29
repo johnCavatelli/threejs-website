@@ -2,7 +2,7 @@ import './style.css'
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import {GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader'
-import * as dat from 'dat.gui'
+// import * as dat from 'dat.gui'
 import gsap from 'gsap'
 // import { StencilOp, Vector3 } from 'three'
 
@@ -24,6 +24,7 @@ var plantHitboxToArticle = {};
 const shovelId = -10;
 const canId = -20;
 const windmillBladeId = -5;
+const bg_clouds = [-30,-31,-32,-33];
 
 
 //loading screen manager
@@ -87,9 +88,6 @@ const dirtGeometry = new THREE.BoxGeometry(1.1,0.1,1.4);
 const plantHitboxGeometry = new THREE.BoxGeometry(0.15,0.6,0.15);
 
 // Materials
-scene.background = new THREE.Color(0xb3ffe3)
-scene.fog = new THREE.Fog( 0xa0a0a0, 10, 50 );
-
 
 const clear_mat = new THREE.MeshStandardMaterial({opacity:0, transparent:true})
 const def_mat = new THREE.MeshStandardMaterial()
@@ -115,7 +113,7 @@ const leaf_4_mat = new THREE.MeshToonMaterial()
 const leaf_5_mat = new THREE.MeshToonMaterial()
 table_mat.color = new THREE.Color(0x876031)
 box_mat.color = new THREE.Color(0xb58b4c)
-cloud_mat.color = new THREE.Color(0xd1eaeb)
+cloud_mat.color = new THREE.Color(0xffffff)
 dirt_mat.color = new THREE.Color(0x422e1c)
 def_mat.color = new THREE.Color(0xaf00af)
 petal_1_mat.color = new THREE.Color(0xd05aed)
@@ -225,9 +223,10 @@ CreateMesh(packet4URL, [packet4_mat], [3.83,0.5,0.22], [0,1.3,0], 0.2, b4.id)
 CreateMesh(packet5URL, [packet5_mat], [4.33,0.5,0.35], [0,1.3,0], 0.2, b5.id)
 CreateMesh(packet6URL, [packet6_mat], [4.82,0.5,0.5], [0,1.3,0], 0.2, b6.id)
 CreateMesh(cloudURL, [cloud_mat], [2,-2,0], [0,0,0.1], 0.1)
-CreateMesh(cloudURL, [cloud_mat], [-5,20,-20], [0,0,0], 0.2)
-CreateMesh(cloudURL, [cloud_mat], [15,-2,-80], [0,0,0], 0.3)
-CreateMesh(cloudURL, [cloud_mat], [2,-20,-50], [0,0,0], 0.2)
+CreateMesh(cloudURL, [cloud_mat], [50,-20,-20], [0,0,0], 0.4, bg_clouds[0])
+CreateMesh(cloudURL, [cloud_mat], [0,10,-80], [0,0,0], 0.6, bg_clouds[3])
+CreateMesh(cloudURL, [cloud_mat], [0,-15,-30], [0,0,0], 0.4, bg_clouds[1])
+CreateMesh(cloudURL, [cloud_mat], [-100,-10,-50], [0,0,0], 0.3, bg_clouds[2])
 CreateMesh(tableURL, [table_mat], [4.4,-0.3,0], [0,1.27,0], 0.07)
 CreateMesh(windmillBaseURL, [table_mat,table_mat,dirt_mat,dirt_mat], [0.3,0,0], [0,-1,0], 0.3)
 CreateMesh(windmillBladeURL, [table_mat], [0.3,0,0], [0,-1,0], 0.3, windmillBladeId)
@@ -259,7 +258,42 @@ hemiLight.position.set( 0, 20, 0 );
 scene.add( hemiLight );
 
 //scene.add( new THREE.CameraHelper( dirLight.shadow.camera ) );
-
+const hour = new Date().getHours();
+// console.log("HOUR: " + hour);
+if(hour < 6){
+    scene.background = new THREE.Color(0x4d508f);//we-morning
+    hemiLight.intensity = 0.4;
+    hemiLight.groundColor = new THREE.Color(0x363d96);
+    hemiLight.skyColor = new THREE.Color(0x2e3175);
+    dirLight.intensity = 0.1;
+}
+else if(hour < 10){
+    scene.background = new THREE.Color(0xcf7744);//sunset
+    hemiLight.intensity = 0.5;
+    hemiLight.groundColor = new THREE.Color(0xcf7744);
+    hemiLight.skyColor = new THREE.Color(0xe6ae40);
+}
+else if(hour < 17){
+    scene.background = new THREE.Color(0xb3ffe3);//day 
+    hemiLight.intensity = 1.2;
+    hemiLight.groundColor = new THREE.Color(0xd6902d);
+    hemiLight.skyColor = new THREE.Color(0xffffff);
+    dirLight.intensity = 1;
+}
+else if(hour < 21){
+    scene.background = new THREE.Color(0xd6902d);//golden hour
+    hemiLight.intensity = 1.2;
+    hemiLight.groundColor = new THREE.Color(0xd6902d);
+    hemiLight.skyColor = new THREE.Color(0xffffff);
+    dirLight.intensity = 1;
+}
+else{
+    scene.background = new THREE.Color(0x5c5fab);
+    hemiLight.intensity = 0.8;
+    hemiLight.groundColor = new THREE.Color(0x5e6385);
+    hemiLight.skyColor = new THREE.Color(0x322870);
+    dirLight.intensity = 0.5;
+}
 
 //sizes
 const sizes = {
@@ -331,10 +365,15 @@ const clock = new THREE.Clock()
 const tick = () =>
 {    
     const elapsedTime = clock.getElapsedTime()
-    // models[windmillBladeId].children[0].rotation.y = .5 * elapsedTime;
-    // models[windmillBladeId].rotation.set({x:.5 * elapsedTime})
     if(models[windmillBladeId] != null){models[windmillBladeId].children[0].rotation.x = .5 * elapsedTime;}
-    // console.log(models[windmillBladeId]);
+    bg_clouds.forEach((item) =>{
+        if(models[item] != null){
+        models[item].position.x -= 0.02;
+        if(models[item].position.x < -100){
+            models[item].position.x = 100;
+        }
+        }
+    });
     //controls.update();
 
     switch(currentState) {
@@ -537,13 +576,13 @@ function ChangeState(newState){
         case states["lookSeeds"]:
             currentState = states["lookSeeds"];
             ChangeCameraValues(4.3,2,0,-1.5,0,0,2);
-            instructions_text.innerHTML = "<p>Choose some seeds to plant</p>"
+            instructions_text.innerHTML = "<h2>Choose some seeds to plant</h2>"
             ChangeHTMLStates({text_welcome: "none",button_start: "none",text_loading:"none", button_back:"none", button_garden: "", button_seeds: "none", text_instructions:""});
           break;
         case states["lookGarden"]:
             currentState = states["lookGarden"];
             ChangeCameraValues(2,2.3,1.6,-0.8,0,0,2);
-            instructions_text.innerHTML = "<p>Click on a plant</p>"
+            instructions_text.innerHTML = "<h2>Click on a plant</h2>"
             ChangeHTMLStates({text_article:"none", button_back: "none", button_garden:"none", button_seeds:"", text_instructions:"",text_article:"none"});
         break;
         case states["diggingHole"]:
@@ -577,12 +616,13 @@ function ChangeState(newState){
                 ease: "power3.out"         
             })            
             ChangeCameraValues(2,2.3,1.6,-0.8,0,0,2);
-            instructions_text.innerHTML = "<p>Dig a hole</p>"
+            instructions_text.innerHTML = "<h2>Dig a hole</h2>"
             ChangeHTMLStates({button_back: "none", button_garden:"none", button_seeds:"none", text_instructions:""});
           break;
         case states["plantingSeed"]:
             currentState = states["plantingSeed"];
             const newMound = new THREE.Mesh(moundGeometry, dirt_mat)
+            newMound.castShadow = true;
             newMound.position.set(newPlantPoint.x, 0.6, newPlantPoint.z);
             newMound.rotation.set(1.57,0,0);
             scene.add(newMound);
@@ -630,7 +670,7 @@ function ChangeState(newState){
                 delay: 1,
                 ease: "power2.out"         
             })
-            instructions_text.innerHTML = "<p>Click the hole to Plant the seeds</p>"
+            instructions_text.innerHTML = "<h2>Click the hole to Plant the seeds</h2>"
             break;
         case states["wateringPlant"]:
             currentState = states["wateringPlant"];
@@ -665,7 +705,7 @@ function ChangeState(newState){
                 duration: 0.5,
                 ease: "power2.out"   
             })
-            instructions_text.innerHTML = "<p>Click the hole to give the plant some water</p>"    
+            instructions_text.innerHTML = "<h2>Click the hole to give the plant some water</h2>"    
             break;
         case states["lookPage"]:
             currentState = states["lookPage"];
@@ -742,6 +782,6 @@ function CreateMesh(url, materials, position, rotation, scale, colliderId){
 }
 
 function SetModel(mode, colliderId){
-    console.log(colliderId);
+    // console.log(colliderId);
     models[colliderId] = mode;
 }
