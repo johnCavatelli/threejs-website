@@ -1,4 +1,4 @@
-Scrolling Background clouds
-Styling for the buttons
-styling for side-window
-Animation for side window
+Text for window
+Materials on watering can
+Seed Packet Textures
+Hosting Website
