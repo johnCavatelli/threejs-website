@@ -1,0 +1,3 @@
+Text for window
+escape button back
+Article Window CSS Expansion
